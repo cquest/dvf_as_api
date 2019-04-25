@@ -1,3 +1,5 @@
+#! /bin/bash
+
 TABLE=dvf
 
 psql -c "create table $TABLE (
@@ -48,7 +50,7 @@ psql -c "create table $TABLE (
 
 for f in valeursfoncieres-*.gz
 do
-    echo $f
+    echo "Import $f"
     zcat $f | sed 's/,\([0-9]\)/.\1/g' | psql -c "copy $TABLE from stdin with (format csv, delimiter '|', header true)"
 done
 
@@ -66,8 +68,7 @@ update $TABLE set numero_plan = code_commune || lpad(coalesce(prefixe_section,''
 -- remise en forme des dates au format ISO (AAAA-MM-JJ)
 update $TABLE set date_mutation = regexp_replace(date_mutation, '(..)/(..)/(....)','\3-\2-\1' ) where date_mutation ~ '../../....';
 
-create index on $TABLE (numero_plan);
-create index on $TABLE (code_postal);
-create index on $TABLE (code_commune);
+create index on $TABLE using spgist (numero_plan);
+create index on $TABLE using spgist (code_postal);
 
 "

@@ -19,7 +19,7 @@ class dgfip_dvf(object):
 
         code_commune = req.params.get('code_commune', None)
         if code_commune and len(code_commune) == 5:
-            where = cur.mogrify(' AND code_commune = %s ', (code_commune,))
+            where = cur.mogrify(' AND numero_plan LIKE %s ', (code_commune+'%',))
 
         section = req.params.get('section', None)
         if section and len(section) >= 10:
