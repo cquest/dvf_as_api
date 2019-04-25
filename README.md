@@ -6,6 +6,16 @@ Ce projet implémente une API minimale pour requêter les données DVF de la DGF
 
 `pip install -r requirements.txt`
 
+## Chargement des données
+
+Téléchargement des données :
+
+`./dvf_download.sh`
+
+Import des données dans postgresql :
+
+`./dvf_import.sh`
+
 ## Lancement du serveur
 
 `gunicorn dvf_as_api:app -b 0.0.0.0:8888`
