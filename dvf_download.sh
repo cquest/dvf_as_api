@@ -1,5 +1,7 @@
 #! /bin/bash
 
+mkdir -p data
+cd data
 # Téléchargement des fichiers DVF
 for ANNEE in $(seq 2014 2018)
 do

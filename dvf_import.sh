@@ -48,7 +48,7 @@ psql -c "create table $TABLE (
     Surface_terrain float
 )"
 
-for f in valeursfoncieres-*.gz
+for f in data/valeursfoncieres-*.gz
 do
     echo "Import $f"
     zcat $f | sed 's/,\([0-9]\)/.\1/g' | psql -c "copy $TABLE from stdin with (format csv, delimiter '|', header true)"
@@ -75,7 +75,7 @@ create index on $TABLE using spgist (code_postal);
 
 # import des localisations de parcelles
 psql -c "CREATE TABLE dvf_parcelles_tmp (id text, lon float, lat float)"
-for f in *-full.csv.gz
+for f in data/*-full.csv.gz
 do
     zcat $f | csvcut -c id_parcelle,longitude,latitude | psql -c "COPY dvf_parcelles_tmp FROM stdin WITH (FORMAT csv, header true)"
 done
