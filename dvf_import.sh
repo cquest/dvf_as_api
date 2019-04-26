@@ -72,3 +72,24 @@ create index on $TABLE using spgist (numero_plan);
 create index on $TABLE using spgist (code_postal);
 
 "
+
+# import des localisations de parcelles
+psql -c "CREATE TABLE dvf_parcelles_tmp (id text, lon float, lat float)"
+for f in *-full.csv.gz
+do
+    zcat $f | csvcut -c id_parcelle,longitude,latitude | psql -c "COPY dvf_parcelles_tmp FROM stdin WITH (FORMAT csv, header true)"
+done
+
+# dédoublonnage
+psql -c "
+CREATE TABLE dvf_parcelles AS SELECT id, lon, lat FROM dvf_parcelles_tmp GROUP BY 1,2,3 ORDER BY id;
+CREATE INDEX ON dvf_parcelles USING brin(id); -- index BRIN car table trié sur id de parcelle
+-- ajout géométrie postgis et index
+ALTER TABLE dvf_parcelles ADD geom geometry(point);
+UPDATE dvf_parcelles SET geom = ST_MakePoint(lon,lat);
+CREATE INDEX ON dvf_parcelles USING spgist (geom);
+DROP TABLE dvf_parcelles_tmp;
+
+-- vue dvf_geo
+CREATE VIEW dvf_geo AS SELECT d.*, lat, lon FROM $TABLE d LEFT JOIN dvf_parcelles p ON (id=numero_plan); 
+"

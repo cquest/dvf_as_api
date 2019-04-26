@@ -60,7 +60,7 @@ class dgfip_dvf(object):
                     'features', case when count(*)=0 then array[]::json[] else array_agg(json_build_object('type','Feature',
                                                            'properties',json_strip_nulls(row_to_json(d)),
                                                            'geometry',st_asgeojson(geom,6,0)::json)) end )::text
-                from parcelles p
+                from dvf_parcelles p
                 join dvf_geo d on (id=numero_plan)
                 where st_buffer(st_setsrid(st_makepoint(%s, %s),4326)::geography, %s)::geometry && geom
                     and ST_DWithin(st_setsrid(st_makepoint(%s, %s),4326)::geography, geom::geography, %s)
