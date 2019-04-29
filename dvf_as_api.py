@@ -6,8 +6,7 @@ import psycopg2
 
 class dgfip_dvf(object):
     def getDVF(self, req, resp):
-        ## connexion à la base PG locale
-        db = psycopg2.connect("")
+        db = psycopg2.connect("")  # connexion à la base PG locale
         cur = db.cursor()
 
         where = ''
@@ -29,57 +28,48 @@ class dgfip_dvf(object):
         # on veut à minima le code commune (5 caractères)
         if numero_plan and len(numero_plan) >= 5:
             if len(numero_plan) == 14:  ## id parcelle complet
-                where = cur.mogrify(
-                    ' AND numero_plan = %s ', (numero_plan,))
+                where = cur.mogrify(' AND numero_plan = %s ', (numero_plan,))
             else:
-                where = cur.mogrify(
-                    ' AND numero_plan LIKE %s ', (numero_plan+'%',))
+                where = cur.mogrify(' AND numero_plan LIKE %s ', (numero_plan+'%',))
 
         nature_mutation = req.params.get('nature_mutation', None)
         if nature_mutation:
-            where2 = where2 + \
-                cur.mogrify(' AND nature_mutation = %s ', (nature_mutation,))
+            where2 = where2 + cur.mogrify(' AND nature_mutation = %s ', (nature_mutation,))
 
         type_local = req.params.get('type_local', None)
         if type_local and type_local != '':
-            where2 = where2 + \
-                cur.mogrify(' AND type_local like %s ', (type_local+'%',))
+            where2 = where2 + cur.mogrify(' AND type_local like %s ', (type_local+'%',))
 
         lat = req.params.get('lat', None)
         lon = req.params.get('lon', None)
-        dist = int(req.params.get('dist',500))
-        if dist > 1000:
-            dist = 1000
+        dist = min(int(req.params.get('dist',500)),1000)
 
-        if lat and lon:
-            query = cur.mogrify("""select
-                json_build_object('source', 'DGFIP / Demande de Valeurs Foncières',
-                    'derniere_maj', '2019-04',
-                    'licence', 'http://data.cquest.org/dgfip_dvf/conditions-generales-dutilisation.pdf',
-                    'type','Featurecollection',
-                    'features', case when count(*)=0 then array[]::json[] else array_agg(json_build_object('type','Feature',
-                                                           'properties',json_strip_nulls(row_to_json(d)),
-                                                           'geometry',st_asgeojson(geom,6,0)::json)) end )::text
-                from dvf_parcelles p
-                join dvf_geo d on (id=numero_plan)
-                where st_buffer(st_setsrid(st_makepoint(%s, %s),4326)::geography, %s)::geometry && geom
-                    and ST_DWithin(st_setsrid(st_makepoint(%s, %s),4326)::geography, geom::geography, %s)
-                
-             """, (lon, lat, dist, lon, lat, dist)) + where2
+        if lat and lon:  # recherche géographique
+            query = cur.mogrify("""
+select json_build_object('source', 'DGFIP / Demande de Valeurs Foncières',
+    'derniere_maj', '2019-04',
+    'licence', 'http://data.cquest.org/dgfip_dvf/conditions-generales-dutilisation.pdf',
+    'type','Featurecollection',
+    'features', case when count(*)=0 then array[]::json[] else array_agg(json_build_object('type','Feature',
+                                            'properties',json_strip_nulls(row_to_json(d)),
+                                            'geometry',st_asgeojson(geom,6,0)::json)) end )::text
+from dvf_parcelles p join dvf_geo d on (id=numero_plan)
+where st_buffer(st_setsrid(st_makepoint(%s, %s),4326)::geography, %s)::geometry && geom
+    and ST_DWithin(st_setsrid(st_makepoint(%s, %s),4326)::geography, geom::geography, %s)
+""", (lon, lat, dist, lon, lat, dist)) + where2
         else:
             query = None
 
         if query or where != '':
             if not query:
-                query = """select json_build_object('source', 'DGFIP / Demande de Valeurs Foncières',
+                query = """
+select json_build_object('source', 'DGFIP / Demande de Valeurs Foncières',
     'derniere_maj', '2019-04',
     'licence', 'http://data.cquest.org/dgfip_dvf/conditions-generales-dutilisation.pdf',
     'nb_resultats', count(r),
     'resultats',array_to_json(array_agg(r)))::text
-from (select *
-    from
-        dvf_geo
-    where true """ + where.decode('utf8') + where2.decode('utf8') + """ ) r
+from (select * from dvf_geo
+        where true """ + where.decode('utf8') + where2.decode('utf8') + """ ) r
 """
             print(query)
             cur.execute(query)
@@ -101,10 +91,6 @@ from (select *
     def on_get(self, req, resp):
         self.getDVF(req, resp);
 
-
-
-# instance WSGI
+# instance WSGI et route vers notre API
 app = falcon.API()
-
-# route vers notre API
 app.add_route('/dvf', dgfip_dvf())
