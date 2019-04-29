@@ -90,6 +90,7 @@ from (select *
             resp.set_header('Access-Control-Allow-Origin', '*')
             resp.set_header("Access-Control-Expose-Headers","Access-Control-Allow-Origin")
             resp.set_header('Access-Control-Allow-Headers','Origin, X-Requested-With, Content-Type, Accept')
+            resp.set_header('X-Robots-Tag', 'noindex, nofollow')
             resp.body = dvf[0]
         else:
             resp.status = falcon.HTTP_413
