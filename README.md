@@ -26,8 +26,8 @@ Import des données dans postgresql :
 
 Sélection des transactions par commune, section, parcelle:
 - code_commune: http://api.cquest.org/dvf?code_commune=89304
-- section: http://api.cquest.org/dvf?section=94038000CQ
-- numero_plan: http://api.cquest.org/dvf?section=94038000CQ0110
+- section: http://api.cquest.org/dvf?section=89304000ZB
+- numero_plan: http://api.cquest.org/dvf?section=89304000ZB0134
 
 Le résultat est au format JSON.
 
