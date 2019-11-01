@@ -14,7 +14,9 @@ Téléchargement des données :
 
 Import des données dans postgresql :
 
-`./dvf_import.sh`
+`./dvf_import.sh MILLESIME`
+
+Exemple:  `./dvf_import.sh 201910`
 
 ## Lancement du serveur
 
@@ -22,7 +24,7 @@ Import des données dans postgresql :
 
 ## Paramètres reconnus par l'API
 
-*(les liens interrogent une version publique de l'API sur api.cquest.org, sans garantie de disponibilité)*
+*(les liens interrogent une version publique de l'API sur **api.cquest.org**, sans garantie de disponibilité)*
 
 Sélection des transactions par commune, section, parcelle:
 - code_commune: http://api.cquest.org/dvf?code_commune=89304
