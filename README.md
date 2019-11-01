@@ -22,16 +22,18 @@ Import des données dans postgresql :
 
 ## Paramètres reconnus par l'API
 
+*(les liens interrogent une version publique de l'API sur api.cquest.org, sans garantie de disponibilité)*
+
 Sélection des transactions par commune, section, parcelle:
-- code_commune: http://localhost:8888/dvf?code_commune=89304
-- section: http://localhost:8888/dvf?section=94038000CQ
-- numero_plan: http://localhost:8888/dvf?section=94038000CQ0110
+- code_commune: http://api.cquest.org/dvf?code_commune=89304
+- section: http://api.cquest.org/dvf?section=94038000CQ
+- numero_plan: http://api.cquest.org/dvf?section=94038000CQ0110
 
 Le résultat est au format JSON.
 
 Sélection par proximité géographique:
-- distance de 100m: http://localhost:8888/dvf?lat=48.85&lon=2.35&dist=100
-- distance par défaut de 500m: http://localhost:8888/dvf?lat=48.85&lon=2.35
+- distance de 100m: http://api.cquest.org/dvf?lat=48.85&lon=2.35&dist=100
+- distance par défaut de 500m: http://api.cquest.org/dvf?lat=48.85&lon=2.35
 
 Filtres possibles:
 - nature_mutation: Vente, Expropriation, etc...
@@ -39,5 +41,5 @@ Filtres possibles:
 
 Exemple de ventes de maisons sur une commune:
 
-http://localhost:8888/dvf?code_commune=89304&nature_mutation=Vente&type_local=Maison
+http://api.cquest.org/dvf?code_commune=89304&nature_mutation=Vente&type_local=Maison
 
